@@ -1,6 +1,6 @@
 {
     "notify": {
-        "no_access": "No access.",
+        "no_access": "No access",
         "someone_at_door": "Someone is at your door!",
         "keyholder": " has been added as a keyholder.",
         "added_as_keyholder": "You have been added as a keyholder.",
@@ -48,10 +48,10 @@
         "gizmo_local": "Sets gizmo local to the entity"
     },
     "drawtext": {
-        "stash": "[E] - Stash",
-        "exit": "[E] - Exit | [G] - Manage",
-        "clothing": "[E] - Clothing | [G] - Outfits",
-        "logout": "[E] - Logout",
-        "view_property": "[E] - View Property"
+        "stash": "[E] Stash",
+        "exit": "<b>[E] Exit </b></p>[G] Manage</p>",
+        "clothing": "<b>[E] Clothing </b></p>[G] Outfits</p>",
+        "logout": "[E] Logout",
+        "view_property": "~g~[E] ~w~Interact"
     }
 }

@@ -251,46 +251,46 @@ lib.registerContext({
 })
 
 -- this command should not be used in production. Dev command only to create images of the objects put into the Furniture table.
--- RegisterCommand('screenshotfurniture', function()
---     local modelHash = GetHashKey('prop_ld_greenscreen_01')
---     lib.requestModel(modelHash, 5000)
---     local greenScreen = CreateObject(modelHash, -1894.99, -3357.08, 145.35, false, false, false)
---     SetModelAsNoLongerNeeded(modelHash)
---     FreezeEntityPosition(greenScreen, true)
---     CreateThread(function()
---         while DoesEntityExist(greenScreen) do
---             local forward, right, upVector, position = GetEntityMatrix(greenScreen)
---             SetEntityMatrix(greenScreen, forward.x, 20.0, forward.z, 20.0, right.y, right.z, upVector.x, upVector.y, 20.0, position.x, position.y, position.z)
---             Wait(0)
---         end
---     end)
---     DisableIdleCamera(true)
---     local cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
---     RenderScriptCams(true, false, 0, false, false)
---     for _, v in pairs(config.furniture) do
---         for i = 1, #v do
---             modelHash = GetHashKey(v[i].object)
---             lib.requestModel(modelHash, 5000)
---             local object = CreateObjectNoOffset(modelHash, -1899.83, -3340.52, 150.24, false, false, false)
---             SetModelAsNoLongerNeeded(modelHash)
---             FreezeEntityPosition(object, true)
---             local minDimension, maxDimension = GetModelDimensions(modelHash)
---             local modelSize = maxDimension - minDimension
---             local fov = math.min(math.max(modelSize.x, modelSize.y) / 0.35 * 10, 60)
---             local objectCoords = GetEntityCoords(object)
---             local objectForward = -GetEntityForwardVector(object) * 2
---             local center = vector3(objectCoords.x + (minDimension.x + maxDimension.x) / 2, objectCoords.y + (minDimension.y + maxDimension.y) / 2, objectCoords.z + (minDimension.z + maxDimension.z) / 2)
---             local cameraPosition = center + objectForward * 2 + vector3(1.5, -1, 1.5 * modelSize.z)
---             SetCamFov(cam, fov)
---             SetCamCoord(cam, cameraPosition.x, cameraPosition.y, cameraPosition.z)
---             PointCamAtCoord(cam, center.x, center.y, center.z)
---             TriggerServerEvent('screenshotFurniture', v[i].object)
---             Wait(1000)
---             DeleteEntity(object)
---         end
---     end
---     DestroyCam(cam, false)
---     RenderScriptCams(false, false, 0, false, false)
---     DisableIdleCamera(false)
---     DeleteEntity(greenScreen)
--- end)
+RegisterCommand('screenshotfurniture', function()
+    local modelHash = GetHashKey('prop_ld_greenscreen_01')
+    lib.requestModel(modelHash, 5000)
+    local greenScreen = CreateObject(modelHash, -1894.99, -3357.08, 145.35, false, false, false)
+    SetModelAsNoLongerNeeded(modelHash)
+    FreezeEntityPosition(greenScreen, true)
+    CreateThread(function()
+        while DoesEntityExist(greenScreen) do
+            local forward, right, upVector, position = GetEntityMatrix(greenScreen)
+            SetEntityMatrix(greenScreen, forward.x, 20.0, forward.z, 20.0, right.y, right.z, upVector.x, upVector.y, 20.0, position.x, position.y, position.z)
+            Wait(0)
+        end
+    end)
+    DisableIdleCamera(true)
+    local cam = CreateCam('DEFAULT_SCRIPTED_CAMERA', true)
+    RenderScriptCams(true, false, 0, false, false)
+    for _, v in pairs(config.furniture) do
+        for i = 1, #v do
+            modelHash = GetHashKey(v[i].object)
+            lib.requestModel(modelHash, 5000)
+            local object = CreateObjectNoOffset(modelHash, -1899.83, -3340.52, 150.24, false, false, false)
+            SetModelAsNoLongerNeeded(modelHash)
+            FreezeEntityPosition(object, true)
+            local minDimension, maxDimension = GetModelDimensions(modelHash)
+            local modelSize = maxDimension - minDimension
+            local fov = math.min(math.max(modelSize.x, modelSize.y) / 0.35 * 10, 60)
+            local objectCoords = GetEntityCoords(object)
+            local objectForward = -GetEntityForwardVector(object) * 2
+            local center = vector3(objectCoords.x + (minDimension.x + maxDimension.x) / 2, objectCoords.y + (minDimension.y + maxDimension.y) / 2, objectCoords.z + (minDimension.z + maxDimension.z) / 2)
+            local cameraPosition = center + objectForward * 2 + vector3(1.5, -1, 1.5 * modelSize.z)
+            SetCamFov(cam, fov)
+            SetCamCoord(cam, cameraPosition.x, cameraPosition.y, cameraPosition.z)
+            PointCamAtCoord(cam, center.x, center.y, center.z)
+            TriggerServerEvent('screenshotFurniture', v[i].object)
+            Wait(1000)
+            DeleteEntity(object)
+        end
+    end
+    DestroyCam(cam, false)
+    RenderScriptCams(false, false, 0, false, false)
+    DisableIdleCamera(false)
+    DeleteEntity(greenScreen)
+end)

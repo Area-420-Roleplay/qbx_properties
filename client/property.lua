@@ -11,10 +11,10 @@ local blips = {}
 
 local function createBlip(apartmentCoords, label)
 	local blip = AddBlipForCoord(apartmentCoords.x, apartmentCoords.y, apartmentCoords.z)
-	SetBlipSprite(blip, 40)
+	SetBlipSprite(blip, 475)
 	SetBlipAsShortRange(blip, true)
-	SetBlipScale(blip, 0.8)
-	SetBlipColour(blip, 2)
+	SetBlipScale(blip, 0.6)
+	SetBlipColour(blip, 29)
 	BeginTextCommandSetBlipName('STRING')
 	AddTextComponentString(label)
 	EndTextCommandSetBlipName(blip)
@@ -173,13 +173,13 @@ end
 local function checkInteractions()
     local interactOptions = {
         ['stash'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = locale('drawtext.stash') })
+            exports['jg-textui']:DrawText(locale('drawtext.stash'))
             if IsControlJustPressed(0, 38) then
                 TriggerServerEvent('qbx_properties:server:openStash')
             end
         end,
         ['exit'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = locale('drawtext.exit') })
+            exports['jg-textui']:DrawText(locale('drawtext.exit'))
             if IsControlJustPressed(0, 38) then
                 DoScreenFadeOut(1000)
                 while not IsScreenFadedOut() do Wait(0) end
@@ -190,7 +190,7 @@ local function checkInteractions()
             end
         end,
         ['clothing'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = locale('drawtext.clothing') })
+            exports['jg-textui']:DrawText(locale('drawtext.clothing'))
             if IsControlJustPressed(0, 38) then
                 exports['illenium-appearance']:startPlayerCustomization(function(appearance)
                     if appearance then
@@ -206,27 +206,29 @@ local function checkInteractions()
                 TriggerEvent('illenium-appearance:client:openOutfitMenu')
             end
         end,
-        ['logout'] = function(coords)
-            qbx.drawText3d({ coords = coords, text = locale('drawtext.logout') })
-            if IsControlJustPressed(0, 38) then
-                DoScreenFadeOut(1000)
-                while not IsScreenFadedOut() do Wait(0) end
-                TriggerServerEvent('qbx_properties:server:logoutProperty')
-            end
-        end,
     }
+
     CreateThread(function()
         while insideProperty do
             local sleep = 800
             local playerCoords = GetEntityCoords(cache.ped)
+            local textVisible = false
+
             for i = 1, #interactions do
                 if #(playerCoords - interactions[i].coords) < 1.5 and not IsDecorating then
                     sleep = 0
+                    textVisible = true
                     interactOptions[interactions[i].type](interactions[i].coords)
                 end
             end
+
+            if not textVisible then
+                exports['jg-textui']:HideText() -- Hides the text when out of range
+            end
+
             Wait(sleep)
         end
+        exports['jg-textui']:HideText() -- Ensures text is hidden when leaving the property
     end)
 end
 
@@ -286,7 +288,7 @@ local function singlePropertyMenu(property, noBackMenu)
     if QBX.PlayerData.citizenid == property.owner or lib.table.contains(json.decode(property.keyholders), QBX.PlayerData.citizenid) then
         options[#options + 1] = {
             title = locale('menu.enter'),
-            icon = 'cog',
+            icon = 'fas fa-arrow-right-to-bracket',
             arrow = true,
             onSelect = function()
                 DoScreenFadeOut(1000)
@@ -401,6 +403,8 @@ function PreparePropertyMenu(propertyCoords)
     end
 end
 
+-- Default qbx
+
 CreateThread(function()
     for i = 1, #sharedConfig.apartmentOptions do
         local data = sharedConfig.apartmentOptions[i]
@@ -411,11 +415,13 @@ CreateThread(function()
     end
 
     properties = lib.callback.await('qbx_properties:callback:loadProperties')
+    
     while true do
         local sleep = 800
         local playerCoords = GetEntityCoords(cache.ped)
+
         for i = 1, #properties do
-            if #(playerCoords - properties[i].xyz) < 1.6 then
+            if #(playerCoords - properties[i].xyz) < 3.6 then
                 sleep = 0
                 qbx.drawText3d({ coords = properties[i].xyz, text = locale('drawtext.view_property') })
                 if IsControlJustPressed(0, 38) then
@@ -423,9 +429,54 @@ CreateThread(function()
                 end
             end
         end
+
         Wait(sleep)
     end
 end)
+
+
+
+-- Interact
+--[[
+CreateThread(function()
+
+    for i = 1, #sharedConfig.apartmentOptions do
+        local data = sharedConfig.apartmentOptions[i]
+
+        if not blips[data.enter] then
+            blips[data.enter] = createBlip(data.enter, data.label)
+        end
+    end
+
+    properties = lib.callback.await('qbx_properties:callback:loadProperties')
+
+    while true do
+        local sleep = 800
+        
+        for i = 1, #properties do
+            local property = properties[i]
+                sleep = 0
+                exports.interact:AddInteraction({
+                    coords = properties[i].xyz,
+                    distance = 8.0,
+                    interactDst = 1.6,
+                    id = 'property_' .. i,
+                    name = property.label,
+                    options = {
+                        {
+                            label = 'view Property',
+                            action = function()
+                                PreparePropertyMenu(properties[i])
+                                exports.interact:RemoveInteraction('property_' .. i)
+                            end,
+                        },
+                    }
+                })
+        end
+        Wait(sleep) 
+    end
+end)
+]]--
 
 RegisterNetEvent('qbx_properties:client:concealPlayers', function(playerIds)
     local players = GetActivePlayers()
